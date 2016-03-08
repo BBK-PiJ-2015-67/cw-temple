@@ -1,5 +1,7 @@
 package student;
 
+import CavernExplorer.Explorator;
+import Escapology.Escaper;
 import game.EscapeState;
 import game.ExplorationState;
 
@@ -36,7 +38,8 @@ public class Explorer {
      * @param state the information available at the current state
      */
     public void explore(ExplorationState state) {
-        //TODO : Explore the cavern and find the orb
+        Explorator indianaJones = new Explorator(state);
+        indianaJones.findTheOrb();
     }
 
     /**
@@ -63,6 +66,7 @@ public class Explorer {
      * @param state the information available at the current state
      */
     public void escape(EscapeState state) {
-        //TODO: Escape from the cavern before time runs out
+        Escaper houdini = new Escaper(state);
+        houdini.getRichAndEscape();
     }
 }
