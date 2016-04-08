@@ -6,6 +6,7 @@ import game.NodeStatus;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * @author lmignot
@@ -14,38 +15,43 @@ public class Explorator {
 
     private ExplorationState state;
 
+    private Stack<Long> lifeline;
+    private Set<Long> visited;
+
+    private NodeStatus nextPos;
 
     public Explorator(ExplorationState state) {
         this.state = state;
+        lifeline = new Stack<>();
+        visited = new LinkedHashSet<>();
     }
 
-    public void findTheOrb () {
-        Set<Long> seen = new LinkedHashSet<>();
-
+    public void findTheOrb() {
         while(state.getDistanceToTarget() > 0) {
-            Collection<NodeStatus> neighbours = state.getNeighbours();
-            // add current to seen items
-            seen.add(state.getCurrentLocation());
-            int distance = Integer.MAX_VALUE;
-            long next = -1L;
-            NodeStatus closest = getClosestNeighbour(neighbours, seen);
-
-            if (closest != null && closest.getDistanceToTarget() < distance) {
-                distance = closest.getDistanceToTarget();
-                next = closest.getId();
+            lifeline.push(state.getCurrentLocation());
+            nextPos = getNextPos(state.getNeighbours());
+            System.out.println("Next distance: " + state.getDistanceToTarget());
+            if (nextPos != null) {
+                visited.add(nextPos.getId());
+                System.out.println("Moving from position " + state.getCurrentLocation() + " to " + nextPos.getId());
+                state.moveTo(nextPos.getId());
+            } else {
+                if (!lifeline.isEmpty()) {
+                    lifeline.pop();
+                    long next = lifeline.peek();
+                    System.out.println("Backtracking...");
+                    System.out.println("Moving from position " + state.getCurrentLocation() + " to " + next);
+                    state.moveTo(next);
+                }
             }
-
-            System.out.println("Moving to tile with id: " + next);
-            System.out.print("Moving from position: " + state.getCurrentLocation());
-            state.moveTo(next);
-            System.out.println("\tto: " + state.getCurrentLocation());
         }
     }
 
-    private NodeStatus getClosestNeighbour(Collection<NodeStatus> neighbours, Set<Long> visited) {
-        return neighbours.parallelStream()
-                .sorted(NodeStatus::compareTo)
+    NodeStatus getNextPos(Collection<NodeStatus> nodes) {
+        return nodes.stream()
                 .filter(n -> !visited.contains(n.getId()))
-                .findFirst().orElse(null);
+                .sorted(NodeStatus::compareTo)
+                .findFirst()
+                .orElse(null);
     }
 }
