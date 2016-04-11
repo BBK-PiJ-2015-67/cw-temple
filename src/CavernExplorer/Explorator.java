@@ -1,10 +1,8 @@
 package CavernExplorer;
 
 import game.ExplorationState;
-import student.PriorityQueue;
-import student.PriorityQueueImpl;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Stack;
 
@@ -14,68 +12,60 @@ import java.util.Stack;
 public class Explorator {
     private ExplorationState state;
 
-    private Stack<ExplorerState> lifeline;
-    private Set<ExplorerState> visited;
-    private PriorityQueue<ExplorerState> queue;
+    private Stack<Long> lifeline;
+    private Set<Long> visited;
 
-    private ExplorerState current;
-    private ExplorerState next;
-
-    /*
-    PriorityQueue of states
-    Add neighbours to queue
-    next = pick the first off the queue - check that it's a neighbour
-    decrement priority of neighbours
-    stack current, move to next
-    if no next, unstack, move up, decrement priority of non-neighbours
-     */
     public Explorator(ExplorationState state) {
         this.state = state;
         lifeline = new Stack<>();
-        visited = new HashSet<>();
-        queue = new PriorityQueueImpl<>();
+        visited = new LinkedHashSet<>();
     }
 
     public void findTheOrb() {
+        long current;
+        long next;
+        long minDistance = Long.MAX_VALUE;
+        long maxDeviation = (long) state.getDistanceToTarget() / 2;
+
         while(state.getDistanceToTarget() > 0) {
-            current = new ExplorerState(state.getCurrentLocation(), state.getDistanceToTarget());
+            current = state.getCurrentLocation();
+            minDistance = state.getDistanceToTarget() < minDistance ? state.getDistanceToTarget() : minDistance;
+
             lifeline.push(current);
+            visited.add(current);
 
-            // add neighbours to PQ
-            state.getNeighbours()
-                    .stream()
-                    .map(n -> new ExplorerState(n.getId(), n.getDistanceToTarget()))
-                    .forEach(n -> queue.add(n, n.getDistance()));
+            EscapeStatus nextNode = state
+                    .getNeighbours()
+                    .parallelStream()
+                    .map(n-> new EscapeStatus(n.getId(), n.getDistanceToTarget()))
+                    .filter(n -> !visited.contains(n.getId()))
+                    .min(EscapeStatus::compare)
+                    .orElse(null);
 
-            // if PQ is not empty, get the next node off the queue
-            ExplorerState tmp = queue.size() > 0 ? queue.peek() : null;
-            if (tmp != null && state.getNeighbours().stream().anyMatch(n -> n.getId() == tmp.getId())) {
-                next = queue.poll();
-            } else {
-                // backtrack
+            if (nextNode == null && lifeline.size() > 1) {
                 lifeline.pop();
-                next = lifeline.peek();
+                next = lifeline.pop();
+            } else {
+                if (nextNode.getDistance() - maxDeviation > minDistance && lifeline.size() > 2) {
+                    System.out.println("min: " + minDistance);
+                    System.out.println("next: " + nextNode.getDistance());
+                    System.out.println("backtracking...");
+                    lifeline.pop();
+                    next = lifeline.pop();
+                } else {
+                    next = nextNode.getId();
+                }
             }
-            // this is rubbish - ideally we'd lower the priority of the queue members but
-            // the provided PQ has no iterators and no streams, ugh!
-            emptyQueue(queue);
-            state.moveTo(next.getId());
+
+            state.moveTo(next);
         }
     }
 
-    private void emptyQueue(PriorityQueue<ExplorerState> q) {
-        for(int i = 0; i < q.size(); i++) {
-            q.poll();
-        }
-    }
-
-    private class ExplorerState {
-
+    private class EscapeStatus {
         private long id;
         private int distance;
-        private boolean didVisit = false;
 
-        ExplorerState(long id, int distance) {
+        EscapeStatus(long id, int distance) {
             this.id = id;
             this.distance = distance;
         }
@@ -88,12 +78,12 @@ public class Explorator {
             return distance;
         }
 
-        boolean didVisit() {
-            return didVisit;
-        }
-
-        void visit() {
-            didVisit = true;
+        int compare(EscapeStatus o) {
+            if (o.getDistance() == distance) {
+                return Math.random() >= 0.5 ? -1 : 1;
+            } else {
+                return o.getDistance() > distance ? -1 : 1;
+            }
         }
     }
 }
