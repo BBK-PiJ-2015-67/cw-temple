@@ -45,11 +45,11 @@ public class Explorator {
                     .orElse(null);
 
             if (nextNode != null) {
-                if (nextNode.getDistance() - maxDeviation > minDistance) {
-                    next = retraceStep();
-                } else {
+//                if (nextNode.getDistance() - maxDeviation > minDistance) {
+//                    next = retraceStep();
+//                } else {
                     next = nextNode.getId();
-                }
+//                }
             } else {
                 next = retraceStep();
             }
@@ -71,10 +71,22 @@ public class Explorator {
         }
     }
 
+    /**
+     * Check that a given state's id is a neighbour of the current state
+     * @param id The id to check
+     * @param neighbours The neighbours of the current state
+     * @return true if the id is a neighbour, false if not
+     */
     private boolean isNeighbour(long id, Collection<NodeStatus> neighbours) {
         return neighbours.parallelStream().anyMatch(n -> n.getId() == id);
     }
 
+    /**
+     * Retrace our steps if necessary, if there is no parent state
+     * revisits the current state.
+     * @return The id of the previous visited state if available,
+     * or the id of the current state if not.
+     */
     private long retraceStep() {
         if (lifeline.size() > 1) {
             lifeline.pop();
@@ -82,6 +94,11 @@ public class Explorator {
         return lifeline.pop();
     }
 
+    /**
+     * Private class for Neighbour NodeStatus', used to provide a custom comparison method.
+     * When 2 neighbours are equidistant from the goal, "flip a coin" to determine which
+     * one to visit.
+     */
     private class EscapeStatus {
         private long id;
         private int distance;
