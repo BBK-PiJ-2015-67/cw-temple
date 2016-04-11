@@ -1,37 +1,35 @@
 package CavernExplorer;
 
 import game.ExplorationState;
-import game.NodeStatus;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 
 /**
  * @author lmignot
  */
-public class Explorator {
+public class SimpleExplorer implements CavernExplorer {
+    private Random rand = new Random();
     private ExplorationState state;
 
     private Stack<Long> lifeline;
     private Set<Long> visited;
 
-    public Explorator(ExplorationState state) {
+    public SimpleExplorer(ExplorationState state) {
         this.state = state;
         lifeline = new Stack<>();
         visited = new LinkedHashSet<>();
     }
 
+    @Override
     public void findTheOrb() {
         long current;
         long next;
-        long minDistance = Long.MAX_VALUE;
-        long maxDeviation = (long) state.getDistanceToTarget();
 
         while(state.getDistanceToTarget() > 0) {
             current = state.getCurrentLocation();
-            minDistance = state.getDistanceToTarget() < minDistance ? state.getDistanceToTarget() : minDistance;
 
             lifeline.push(current);
             visited.add(current);
@@ -45,11 +43,7 @@ public class Explorator {
                     .orElse(null);
 
             if (nextNode != null) {
-//                if (nextNode.getDistance() - maxDeviation > minDistance) {
-//                    next = retraceStep();
-//                } else {
                     next = nextNode.getId();
-//                }
             } else {
                 next = retraceStep();
             }
@@ -60,7 +54,7 @@ public class Explorator {
                 EscapeStatus tmp = state
                     .getNeighbours()
                     .parallelStream()
-                    .map(n-> new EscapeStatus(n.getId(), n.getDistanceToTarget()))
+                    .map(n -> new EscapeStatus(n.getId(), n.getDistanceToTarget()))
                     .min(EscapeStatus::compare)
                     .orElse(null);
 
@@ -69,16 +63,6 @@ public class Explorator {
                 }
             }
         }
-    }
-
-    /**
-     * Check that a given state's id is a neighbour of the current state
-     * @param id The id to check
-     * @param neighbours The neighbours of the current state
-     * @return true if the id is a neighbour, false if not
-     */
-    private boolean isNeighbour(long id, Collection<NodeStatus> neighbours) {
-        return neighbours.parallelStream().anyMatch(n -> n.getId() == id);
     }
 
     /**
@@ -124,7 +108,7 @@ public class Explorator {
          */
         int compare(EscapeStatus o) {
             if (o.getDistance() == distance) {
-                return Math.random() > 0.5 ? -1 : 1;
+                return rand.nextBoolean() ? 1 : -1;
             } else {
                 return o.getDistance() > distance ? -1 : 1;
             }
