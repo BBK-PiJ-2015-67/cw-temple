@@ -1,10 +1,10 @@
 package CavernExplorer;
 
 import game.ExplorationState;
-import game.NodeStatus;
+import student.PriorityQueue;
+import student.PriorityQueueImpl;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
@@ -12,46 +12,88 @@ import java.util.Stack;
  * @author lmignot
  */
 public class Explorator {
-
     private ExplorationState state;
 
-    private Stack<Long> lifeline;
-    private Set<Long> visited;
+    private Stack<ExplorerState> lifeline;
+    private Set<ExplorerState> visited;
+    private PriorityQueue<ExplorerState> queue;
 
-    private NodeStatus nextPos;
+    private ExplorerState current;
+    private ExplorerState next;
 
+    /*
+    PriorityQueue of states
+    Add neighbours to queue
+    next = pick the first off the queue - check that it's a neighbour
+    decrement priority of neighbours
+    stack current, move to next
+    if no next, unstack, move up, decrement priority of non-neighbours
+     */
     public Explorator(ExplorationState state) {
         this.state = state;
         lifeline = new Stack<>();
-        visited = new LinkedHashSet<>();
+        visited = new HashSet<>();
+        queue = new PriorityQueueImpl<>();
     }
 
     public void findTheOrb() {
         while(state.getDistanceToTarget() > 0) {
-            lifeline.push(state.getCurrentLocation());
-            nextPos = getNextPos(state.getNeighbours());
-            System.out.println("Next distance: " + state.getDistanceToTarget());
-            if (nextPos != null) {
-                visited.add(nextPos.getId());
-                System.out.println("Moving from position " + state.getCurrentLocation() + " to " + nextPos.getId());
-                state.moveTo(nextPos.getId());
+            current = new ExplorerState(state.getCurrentLocation(), state.getDistanceToTarget());
+            lifeline.push(current);
+
+            // add neighbours to PQ
+            state.getNeighbours()
+                    .stream()
+                    .map(n -> new ExplorerState(n.getId(), n.getDistanceToTarget()))
+                    .forEach(n -> queue.add(n, n.getDistance()));
+
+            // if PQ is not empty, get the next node off the queue
+            ExplorerState tmp = queue.size() > 0 ? queue.peek() : null;
+            if (tmp != null && state.getNeighbours().stream().anyMatch(n -> n.getId() == tmp.getId())) {
+                next = queue.poll();
             } else {
-                if (!lifeline.isEmpty()) {
-                    lifeline.pop();
-                    long next = lifeline.peek();
-                    System.out.println("Backtracking...");
-                    System.out.println("Moving from position " + state.getCurrentLocation() + " to " + next);
-                    state.moveTo(next);
-                }
+                // backtrack
+                lifeline.pop();
+                next = lifeline.peek();
             }
+            // this is rubbish - ideally we'd lower the priority of the queue members but
+            // the provided PQ has no iterators and no streams, ugh!
+            emptyQueue(queue);
+            state.moveTo(next.getId());
         }
     }
 
-    NodeStatus getNextPos(Collection<NodeStatus> nodes) {
-        return nodes.stream()
-                .filter(n -> !visited.contains(n.getId()))
-                .sorted(NodeStatus::compareTo)
-                .findFirst()
-                .orElse(null);
+    private void emptyQueue(PriorityQueue<ExplorerState> q) {
+        for(int i = 0; i < q.size(); i++) {
+            q.poll();
+        }
+    }
+
+    private class ExplorerState {
+
+        private long id;
+        private int distance;
+        private boolean didVisit = false;
+
+        ExplorerState(long id, int distance) {
+            this.id = id;
+            this.distance = distance;
+        }
+
+        long getId() {
+            return id;
+        }
+
+        int getDistance() {
+            return distance;
+        }
+
+        boolean didVisit() {
+            return didVisit;
+        }
+
+        void visit() {
+            didVisit = true;
+        }
     }
 }
