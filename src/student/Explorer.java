@@ -1,7 +1,8 @@
 package student;
 
-import CavernExplorer.SimpleExplorer;
 import Escapology.Escaper;
+import Explorers.CavernExplorer;
+import Explorers.SimpleExplorer;
 import game.EscapeState;
 import game.ExplorationState;
 
@@ -38,7 +39,7 @@ public class Explorer {
      * @param state the information available at the current state
      */
     public void explore(ExplorationState state) {
-        SimpleExplorer indianaJones = new SimpleExplorer(state);
+        CavernExplorer indianaJones = new SimpleExplorer(state);
         indianaJones.findTheOrb();
     }
 

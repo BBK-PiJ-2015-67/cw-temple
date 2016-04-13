@@ -1,4 +1,4 @@
-package CavernExplorer;
+package Explorers;
 
 import game.ExplorationState;
 
@@ -43,7 +43,7 @@ public class SimpleExplorer implements CavernExplorer {
                     .orElse(null);
 
             if (nextNode != null) {
-                    next = nextNode.getId();
+                next = nextNode.getId();
             } else {
                 next = retraceStep();
             }

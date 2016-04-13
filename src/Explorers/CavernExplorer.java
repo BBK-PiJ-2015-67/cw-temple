@@ -1,4 +1,4 @@
-package CavernExplorer;
+package Explorers;
 
 import game.NodeStatus;
 
@@ -11,7 +11,7 @@ public interface CavernExplorer {
 
     /**
      * Main method required by any classes implementing this interface.<br>
-     * This method will be called from the Student escaper class.
+     * This method will be called from the Student Explorer class.
      */
     void findTheOrb();
 
