@@ -27,9 +27,12 @@ public class AStarRouteFinder implements RouteFinder {
         if (start == null || end == null || nodes == null || nodes.isEmpty()) return route;
         Queue<GreedyNode> open = new PriorityQueue<>();
         Collection<GreedyNode> closed = new LinkedHashSet<>();
+        Collection<GreedyNode> graph = nodes.parallelStream()
+                .map(GreedyNode::new)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         GreedyNode current = null;
 
-        open.add(new GreedyNode(start));
+        open.add(graph.parallelStream().filter(n -> n.getId() == start.getId()).findFirst().get());
 
         while (!open.isEmpty()) {
             current = open.poll();
@@ -38,21 +41,17 @@ public class AStarRouteFinder implements RouteFinder {
             closed.add(current);
 
             int costSoFar = current.getG();
-            Collection<GreedyNode> neighbours = current.getNeighbours();
+            Collection<GreedyNode> neighbours = current.getNeighbours(graph);
 
             for(GreedyNode g : neighbours) {
                 int costToNext = costSoFar + current.getNode().getEdge(g.getNode()).length();
 
                 if (costToNext < g.getG()) {
-                    open = open.parallelStream()
-                            .filter(n -> n.getId() == g.getId())
-                            .collect(Collectors.toCollection(PriorityQueue::new));
-                    closed = closed.parallelStream()
-                            .filter(n -> n.getId() == g.getId())
-                            .collect(Collectors.toCollection(LinkedHashSet::new));;
+                    if (open.contains(g)) open.remove(g);
+                    if (closed.contains(g)) closed.remove(g);
                 }
 
-                if (!isNodeIn(g, open, closed)) {
+                if (!open.contains(g) && !closed.contains(g)) {
                     g.setG(costToNext);
                     g.setH(getH(end.getTile(), g.getNode().getTile()));
                     g.setParent(current);
@@ -62,9 +61,6 @@ public class AStarRouteFinder implements RouteFinder {
         }
 
         if (current != null) {
-            System.out.println("Ending at: " + current.getId());
-            System.out.println("Last node is: " + end.getId());
-            System.out.println("Start node is: " + start.getId());
             route = makeRoute(current, start);
         }
 

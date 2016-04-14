@@ -4,7 +4,6 @@ import game.Node;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
 
 /**
  * @author lmignot
@@ -71,16 +70,19 @@ public class GreedyNode implements Comparable<GreedyNode> {
         return parent;
     }
 
-    public Collection<GreedyNode> getNeighbours() {
-        return node.getNeighbours()
+    public Collection<GreedyNode> getNeighbours(Collection<GreedyNode> graph) {
+        Collection<GreedyNode> result = new LinkedHashSet<>();
+        node.getNeighbours()
                 .parallelStream()
-                .map(GreedyNode::new)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .forEach(n -> result.add(graph.parallelStream().filter(e -> e.getId() == n.getId()).findFirst().get()));
+        return result;
     }
 
     /**
      * Comparison method, uses the "f" value
-     * of GreedyNodes for comparison.
+     * of GreedyNodes for comparison.<br>
+     * Uses the amount of gold contained
+     * on a tile as a tie-breaker
      *
      * @param o the node to compare this node against
      * @return -1, 0 or 1 depending on if this node is less
@@ -88,7 +90,12 @@ public class GreedyNode implements Comparable<GreedyNode> {
      */
     @Override
     public int compareTo(GreedyNode o) {
-        if (getF() == o.getF()) return 0;
+        int myGold = node.getTile().getGold();
+        int theirGold = o.getNode().getTile().getGold();
+        if (getF() == o.getF()) {
+            if (myGold == theirGold) return 0;
+            return myGold > theirGold ? -1 : 1;
+        }
         return getF() > o.getF() ? 1 : -1;
     }
 }
