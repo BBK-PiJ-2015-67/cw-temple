@@ -2,7 +2,7 @@ package Escapology;
 
 import game.EscapeState;
 
-import java.util.Queue;
+import java.util.Stack;
 
 /**
  * @author lmignot
@@ -17,15 +17,19 @@ public class Escaper {
 
     public void getRichAndEscape() {
         RouteFinder routeFinder = new AStarRouteFinder();
-        Queue<GreedyNode> route = routeFinder.findRoute(state.getCurrentNode(), state.getExit(), state.getVertices());
+        Stack<GreedyNode> route =
+                routeFinder.findRoute(state.getCurrentNode(), state.getExit(), state.getVertices());
         int goldCollected = 0;
 
         System.out.println("Route length: " + route.size());
-        while (!route.isEmpty()) {
-            GreedyNode current = route.poll();
-            goldCollected += current.collectGold();
-            state.moveTo(route.peek().getNode());
+        while (!route.empty()) {
+            GreedyNode current = route.pop();
+            goldCollected += current.countGold();
+            System.out.println("Moving from: " + state.getCurrentNode().getId() + " to: " + current.getNode().getId());
+            state.moveTo(current.getNode());
+            if (current.hasGold()) state.pickUpGold();
         }
-        System.out.println("Gold collected: " + goldCollected);
+//        System.out.println("Gold collected: " + goldCollected);
+        return;
     }
 }
