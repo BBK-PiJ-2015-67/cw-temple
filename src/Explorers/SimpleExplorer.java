@@ -34,35 +34,23 @@ public class SimpleExplorer implements CavernExplorer {
             lifeline.push(current);
             visited.add(current);
 
-            EscapeStatus nextNode = state
-                    .getNeighbours()
-                    .parallelStream()
-                    .map(n-> new EscapeStatus(n.getId(), n.getDistanceToTarget()))
-                    .filter(n -> !visited.contains(n.getId()))
-                    .min(EscapeStatus::compare)
-                    .orElse(null);
-
-            if (nextNode != null) {
-                next = nextNode.getId();
-            } else {
-                next = retraceStep();
-            }
+            EscapeStatus nextNode = getNextNearest(true);
+            next = nextNode != null ? nextNode.getId() : retraceStep();
 
             if (isNeighbour(next, state.getNeighbours())) {
                 state.moveTo(next);
             } else {
-                EscapeStatus tmp = state
-                    .getNeighbours()
-                    .parallelStream()
-                    .map(n -> new EscapeStatus(n.getId(), n.getDistanceToTarget()))
-                    .min(EscapeStatus::compare)
-                    .orElse(null);
-
-                if (tmp != null) {
-                    state.moveTo(tmp.getId());
-                }
+                EscapeStatus tmp = getNextNearest(false);
+                if (tmp != null) state.moveTo(tmp.getId());
             }
         }
+    }
+
+    private EscapeStatus getNextNearest(boolean filterVisited) {
+        return state.getNeighbours().parallelStream()
+            .map(n-> new EscapeStatus(n.getId(), n.getDistanceToTarget()))
+            .filter(n -> filterVisited && !visited.contains(n.getId()))
+            .min(EscapeStatus::compare).orElse(null);
     }
 
     /**

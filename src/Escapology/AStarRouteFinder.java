@@ -69,7 +69,7 @@ public class AStarRouteFinder implements RouteFinder {
 
     /**
      * Creates a route for the Escaper to follow
-     * @param end The exit GreedyNode
+     * @param end The GreedyNode containing the exit node
      * @param start The state's start node
      * @return A stack containing the route
      */
