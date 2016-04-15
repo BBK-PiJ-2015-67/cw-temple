@@ -5,6 +5,9 @@ import game.EscapeState;
 import java.util.Stack;
 
 /**
+ * Explore the map and find the optimal route to the exit.
+ * Collect as much gold as possible without running out of time.
+ *
  * @author lmignot
  */
 public class Escaper {
@@ -17,13 +20,17 @@ public class Escaper {
 
     public void getRichAndEscape() {
         RouteFinder routeFinder = new AStarRouteFinder();
-        Stack<GreedyNode> route =
-                routeFinder.findRoute(state.getCurrentNode(), state.getExit(), state.getVertices());
+        Route route = routeFinder.findRoute(state.getCurrentNode(), state.getExit(), state.getVertices());
+        Stack<GreedyNode> path = route.getRoute();
+        int routeCost = route.getCost();
 
-        while (!route.empty()) {
-            GreedyNode current = route.pop();
+        while (!path.empty()) {
+            GreedyNode current = path.pop();
             state.moveTo(current.getNode());
             if (current.hasGold()) state.pickUpGold();
         }
+
+        System.out.println("Time remaining: " + state.getTimeRemaining());
+        System.out.println(routeCost + state.getTimeRemaining());
     }
 }

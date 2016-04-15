@@ -4,11 +4,12 @@ import game.Node;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 
 /**
  * @author lmignot
  */
-public class GreedyNode implements Comparable<GreedyNode> {
+/* package */  class GreedyNode implements Comparable<GreedyNode> {
 
     private Node node;
     private GreedyNode parent = null;
@@ -16,7 +17,7 @@ public class GreedyNode implements Comparable<GreedyNode> {
     private int g = 0;
     private int f = 0;
 
-    public GreedyNode(Node n) {
+    /* package */ GreedyNode(Node n) {
         node = n;
     }
 
@@ -24,37 +25,29 @@ public class GreedyNode implements Comparable<GreedyNode> {
         return node;
     }
 
-    public long getId() {
+    /* package */ long getId() {
         return node.getId();
     }
 
-    public boolean hasGold() {
+    /* package */ boolean hasGold() {
         return node.getTile().getGold() > 0;
     }
 
-    public int countGold() {
-        return node.getTile().getGold();
-    }
-
-    public int getH() {
-        return h;
-    }
-
-    public void setH(int h) {
+    /* package */ void setH(int h) {
         this.h = h;
         setF(this.h + g);
     }
 
-    public int getG() {
+    /* package */ int getG() {
         return g;
     }
 
-    public void setG(int g) {
+    /* package */ void setG(int g) {
         this.g = g;
         setF(h + this.g);
     }
 
-    public int getF() {
+    private int getF() {
         return f;
     }
 
@@ -62,20 +55,33 @@ public class GreedyNode implements Comparable<GreedyNode> {
         this.f = f;
     }
 
-    public void setParent(GreedyNode p) {
+    /* package */ void setParent(GreedyNode p) {
         parent = p;
     }
 
-    public GreedyNode getParent() {
+    /* package */ GreedyNode getParent() {
         return parent;
     }
 
-    public Collection<GreedyNode> getNeighbours(Collection<GreedyNode> graph) {
-        Collection<GreedyNode> result = new LinkedHashSet<>();
-        node.getNeighbours()
-                .parallelStream()
-                .forEach(n -> result.add(graph.parallelStream().filter(e -> e.getId() == n.getId()).findFirst().get()));
-        return result;
+    /**
+     * Get the cost of moving from this node to its parent
+     *
+     * @return The movement cost between this node and its parent
+     */
+    int getMovementCost() {
+        return node.getEdge(parent.getNode()).length();
+    }
+    /**
+     * Retrieve the GreedyNode neighbours for this particular node
+     * from the graph containing all nodes in the map.
+     * @param graph The graph of all nodes in the map to search through
+     * @return A (possibly empty) set of this node's neighbours as GreedyNodes
+     */
+    /* package */ Collection<GreedyNode> getNeighbours(Collection<GreedyNode> graph) {
+        Collection<Node> neighbours = node.getNeighbours();
+        return graph.parallelStream()
+                .filter(e -> neighbours.contains(e.getNode()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**

@@ -3,13 +3,12 @@ package Escapology;
 import game.Node;
 
 import java.util.Collection;
-import java.util.Stack;
 
 /**
  * RouteFinder finds a route and return it as a Queue
  * @author lmignot
  */
-public interface RouteFinder {
+/* package */ interface RouteFinder {
 
     /**
      * Finds a route from a start Node to an End node
@@ -19,5 +18,5 @@ public interface RouteFinder {
      * @param nodes the set of nodes to search for the route
      * @return A (possibly empty) Queue containing the route to follow
      */
-    Stack<GreedyNode> findRoute(Node start, Node end, Collection<Node> nodes);
+    Route findRoute(Node start, Node end, Collection<Node> nodes);
 }

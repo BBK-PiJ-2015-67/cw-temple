@@ -16,23 +16,27 @@ import java.util.stream.Collectors;
  *
  * @author lmignot
  */
-public class AStarRouteFinder implements RouteFinder {
+/* package */ class AStarRouteFinder implements RouteFinder {
 
     /**
      * @see RouteFinder#findRoute(Node, Node, Collection)
      */
     @Override
-    public Stack<GreedyNode> findRoute(Node start, Node end, Collection<Node> nodes) {
-        Stack<GreedyNode> route = new Stack<>();
+    public Route findRoute(Node start, Node end, Collection<Node> nodes) {
+        Route route = new Route();
         if (start == null || end == null || nodes == null || nodes.isEmpty()) return route;
+
+        // put all the nodes into a graph as GreedyNodes
+        Collection<GreedyNode> graph = nodes.parallelStream().map(GreedyNode::new)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
         Queue<GreedyNode> open = new PriorityQueue<>();
         Collection<GreedyNode> closed = new LinkedHashSet<>();
-        Collection<GreedyNode> graph = nodes.parallelStream()
-                .map(GreedyNode::new)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+
         GreedyNode current = null;
 
-        open.add(graph.parallelStream().filter(n -> n.getId() == start.getId()).findFirst().get());
+        // add start node to open list
+        open.add(graph.parallelStream().filter(n -> n.getId() == start.getId()).findFirst().orElse(null));
 
         while (!open.isEmpty()) {
             current = open.poll();
@@ -46,6 +50,8 @@ public class AStarRouteFinder implements RouteFinder {
             for(GreedyNode g : neighbours) {
                 int costToNext = costSoFar + current.getNode().getEdge(g.getNode()).length();
 
+                // if the cost for this neighbour is now less than previously calculated
+                // remove it from the open and closed lists so it can be re-evaluated
                 if (costToNext < g.getG()) {
                     if (open.contains(g)) open.remove(g);
                     if (closed.contains(g)) closed.remove(g);
@@ -60,27 +66,25 @@ public class AStarRouteFinder implements RouteFinder {
             }
         }
 
-        if (current != null) {
-            route = makeRoute(current, start);
-        }
+        if (current != null) route = getRoute(current, start);
 
         return route;
     }
 
     /**
-     * Creates a route for the Escaper to follow
+     * Get a route for the Escaper to follow
      * @param end The GreedyNode containing the exit node
      * @param start The state's start node
      * @return A stack containing the route
      */
-    private Stack<GreedyNode> makeRoute(GreedyNode end, Node start) {
+    private Route getRoute(GreedyNode end, Node start) {
         Stack<GreedyNode> route = new Stack<>();
         GreedyNode previous = end;
         do {
             route.push(previous);
             previous = previous.getParent();
         } while(previous.getId() != start.getId());
-        return route;
+        return new Route(route);
     }
 
     /**
@@ -89,7 +93,7 @@ public class AStarRouteFinder implements RouteFinder {
      * distance.
      * @param a the starting Tile
      * @param b the destination Tile
-     * @return the (possibly) adjusted heuristic
+     * @return the (possibly adjusted) heuristic
      */
     private static int getH(Tile a, Tile b) {
         // @TODO: incorporate Gold into this calculation
