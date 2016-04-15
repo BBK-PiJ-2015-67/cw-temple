@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
+ * @see CavernExplorer
+ *
  * @author lmignot
  */
 public class SimpleExplorer implements CavernExplorer {
@@ -23,6 +25,9 @@ public class SimpleExplorer implements CavernExplorer {
         visited = new LinkedHashSet<>();
     }
 
+    /**
+     * @see CavernExplorer#findTheOrb()
+     */
     @Override
     public void findTheOrb() {
         long current;

@@ -5,13 +5,17 @@ import game.NodeStatus;
 import java.util.Collection;
 
 /**
+ * An explorer interface. Classes implementing this interface
+ * should define a {@code findTheOrb} method which will be called
+ * by the Student package in the game.
+ *
  * @author lmignot
  */
 public interface CavernExplorer {
 
     /**
-     * Main method required by any classes implementing this interface.<br>
-     * This method will be called from the Student Explorer class.
+     * Explore the map and find the Orb. Exploration is
+     * successful if the distance to Orb is 0
      */
     void findTheOrb();
 
