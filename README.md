@@ -10,6 +10,9 @@ as a result the path chosen is not always optimal.
 Use a Stack in order to be able to backtrack if necessary.
 Tested on 10K+ runs and always returns a path to the Orb so at least it works.
 
+TODO if time permits: constantly add any new neighbours to a map of discovered nodes, 
+as we move try and move towards the best node that we know about.
+
 ## Escape
 ### Implementation so far:
 A* algorithm using lots of research, notably:
@@ -20,14 +23,6 @@ A* algorithm using lots of research, notably:
 In cases where a tie-breaker is needed ("f" value of 2 nodes is equal) have used the 
 amount of gold on a tile to break the tie.
 
-### Known issues
-A* returns the single shortest path between nodes, it does it so well that the amount of Gold 
-collected is not ideal.
-Need to look at adjusting the algorithm to search neighbouring nodes with more Gold that are
-within the allowed time-slot.
-Might add some waypoints with lots of Gold and try to route via those points if the time permits. 
-
-### TODO if time permits
-- Use threading?
-    - Thread safe data structures
-- Some sort of heuristics needed to keep track of best score
+Current implementation gets the next map node with the most gold and if we can reach
+that node and the exit in the time remaining, goes to that node. The path is recalculated
+at every step as we move to the exit. Uses lots of CPU :)
