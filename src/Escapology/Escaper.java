@@ -64,7 +64,7 @@ public class Escaper {
      */
     private static Route getRouteToFollow(RouteFinder routeFinder, EscapeState state, Collection<Node> map) {
         Node richestNode = getRichestNode(map);
-        if (richestNode != null) {
+        if (richestNode != null && state.getCurrentNode() != richestNode) {
             return routeFinder.findRouteVia(state.getCurrentNode(), richestNode, state.getExit(), map);
         } else {
             return routeFinder.findRoute(state.getCurrentNode(), state.getExit(), map);
