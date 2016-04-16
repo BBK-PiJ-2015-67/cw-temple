@@ -39,12 +39,15 @@ public class SimpleExplorer implements CavernExplorer {
             lifeline.push(current);
             visited.add(current);
 
+            // get the node nearest to orb that hasn't been visited
             EscapeStatus nextNode = getNextNearest(true);
             next = nextNode != null ? nextNode.getId() : retraceStep();
 
+            // if the nearest node is a neighbour move there
             if (isNeighbour(next, state.getNeighbours())) {
                 state.moveTo(next);
             } else {
+                // get the nearest node that might have been visited already
                 EscapeStatus tmp = getNextNearest(false);
                 if (tmp != null) state.moveTo(tmp.getId());
             }
