@@ -51,6 +51,13 @@ public class SimpleExplorer implements CavernExplorer {
         }
     }
 
+    /**
+     * Get the neighbour that is nearest to the goal.
+     * Optionally filter out neighbours that have been seen.
+     *
+     * @param filterVisited Whether or not seen nodes should be skipped
+     * @return The neighbour nearest to the goal, or null if there is none.
+     */
     private EscapeStatus getNextNearest(boolean filterVisited) {
         return state.getNeighbours().parallelStream()
             .map(n-> new EscapeStatus(n.getId(), n.getDistanceToTarget()))

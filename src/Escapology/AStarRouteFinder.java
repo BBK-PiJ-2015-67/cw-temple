@@ -1,7 +1,6 @@
 package Escapology;
 
 import game.Node;
-import game.Tile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
         Route route = new Route();
         if (start == null || end == null || nodes == null || nodes.isEmpty()) return route;
 
-        // put all the nodes into a graph as GreedyNodes
         Collection<GreedyNode> graph = nodes.parallelStream().map(GreedyNode::new)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -35,7 +33,6 @@ import java.util.stream.Collectors;
 
         GreedyNode current = null;
 
-        // add start node to open list
         open.add(graph.parallelStream().filter(n -> n.getId() == start.getId()).findFirst().orElse(null));
 
         while (!open.isEmpty()) {
@@ -59,7 +56,7 @@ import java.util.stream.Collectors;
 
                 if (!open.contains(g) && !closed.contains(g)) {
                     g.setG(costToNext);
-                    g.setH(getH(end.getTile(), g.getNode().getTile()));
+                    g.setH(Heuristic.manhattanDistance(end.getTile(), g.getNode().getTile()));
                     g.setParent(current);
                     open.add(g);
                 }
@@ -69,6 +66,14 @@ import java.util.stream.Collectors;
         if (current != null) route = getRoute(current, start);
 
         return route;
+    }
+
+    /**
+     * @see RouteFinder#findRouteVia(Node, Node, Node, Collection)
+     */
+    @Override
+    public Route findRouteVia(Node start, Node waypoint, Node end, Collection<Node> nodes) {
+        return Route.combineRoutes(findRoute(start, waypoint, nodes), findRoute(waypoint, end, nodes));
     }
 
     /**
@@ -85,21 +90,5 @@ import java.util.stream.Collectors;
             previous = previous.getParent();
         } while(previous.getId() != start.getId());
         return new Route(route);
-    }
-
-    /**
-     * Calculate the heuristic "H" for the A* algorithm
-     * using the <a href="http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html#manhattan-distance">Manhattan</a>
-     * distance.
-     * @param a the starting Tile
-     * @param b the destination Tile
-     * @return the (possibly adjusted) heuristic
-     */
-    private static int getH(Tile a, Tile b) {
-        // @TODO: incorporate Gold into this calculation
-        // for now just using the Manhattan distance
-        int D = 1;
-
-        return D * (Math.abs(a.getColumn() - b.getColumn()) + Math.abs(a.getRow() - b.getRow()));
     }
 }

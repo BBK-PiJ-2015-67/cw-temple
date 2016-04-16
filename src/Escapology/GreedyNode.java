@@ -71,6 +71,16 @@ import java.util.stream.Collectors;
     int getMovementCost() {
         return node.getEdge(parent.getNode()).length();
     }
+
+    /**
+     * Get the amount of gold available on this node's tile
+     *
+     * @return the amount of gold on the tile
+     */
+    int getGold() {
+        return node.getTile().getGold();
+    }
+
     /**
      * Retrieve the GreedyNode neighbours for this particular node
      * from the graph containing all nodes in the map.
