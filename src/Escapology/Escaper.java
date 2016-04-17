@@ -28,17 +28,16 @@ public class Escaper {
     public void getRichAndEscape() {
         Set<Long> seen = new HashSet<>();
         RouteFinder routeFinder = new AStarRouteFinder();
+        Node exit = state.getExit();
 
         // if the first node contains gold, pick it up straight away
         // so it doesn't affect route planning
         if (state.getCurrentNode().getTile().getGold() > 0) state.pickUpGold();
 
-        Node exit = state.getExit();
-
-        // while we can find a route via the node with the most gold on the map
         while (state.getCurrentNode() != exit) {
             Route greedyRoute = getRouteToFollow(routeFinder, state, seen);
 
+            // while we can find a route via the node with the most gold on the map
             while (state.getTimeRemaining() - greedyRoute.getCost() > 0) {
                 if (greedyRoute.size() == 0) break;
                 moveAndPickUpGold(state, greedyRoute.getRoute().pop().getNode());
