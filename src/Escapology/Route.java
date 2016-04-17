@@ -24,6 +24,10 @@ import java.util.stream.Collectors;
         this.route = route;
     }
 
+    /* package */ int size() {
+        return route.size();
+    }
+
     /* package */ Stack<GreedyNode> getRoute() {
         return route.parallelStream().collect(Collectors.toCollection(Stack::new));
     }

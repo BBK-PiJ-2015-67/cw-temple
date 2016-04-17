@@ -85,10 +85,12 @@ import java.util.stream.Collectors;
     private Route getRoute(GreedyNode end, Node start) {
         Stack<GreedyNode> route = new Stack<>();
         GreedyNode previous = end;
-        do {
+
+        while(previous != null && previous.getId() != start.getId()) {
             route.push(previous);
             previous = previous.getParent();
-        } while(previous.getId() != start.getId());
+        }
+
         return new Route(route);
     }
 }
