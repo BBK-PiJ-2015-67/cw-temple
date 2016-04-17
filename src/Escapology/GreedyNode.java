@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
      * @return The movement cost between this node and its parent
      */
     int getMovementCost() {
-        return node.getEdge(parent.getNode()).length();
+        return parent != null ? node.getEdge(parent.getNode()).length() : 0;
     }
 
     /**
