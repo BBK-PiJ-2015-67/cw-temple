@@ -6,14 +6,10 @@ Completed alone.
 # Phases
 
 ## Exploration
-Implemented a depth-first search that uses the distance to Orb as a priority.
-If 2 nodes have the same distance to the Orb then randomly picks between them,
-as a result the path chosen is not always optimal.
+Implemented some sort of depth-first search prioritising distance to Orb.
+If 2 nodes have the same distance to the Orb then pick one at random.
 Use a Stack in order to be able to backtrack if necessary.
-Tested on 10K+ runs and always returns a path to the Orb so at least it works.
-
-TODO if time permits: constantly add any new neighbours to a map of discovered nodes, 
-as we move try and move towards the best node that we know about.
+Tested on 10K+ runs and always returns a path to the Orb.
 
 ## Escape
 ### Implementation so far:
@@ -27,4 +23,4 @@ amount of gold on a tile to break the tie.
 
 Current implementation gets the next map node with the most gold and if we can reach
 that node and the exit in the time remaining, goes to that node. The path is recalculated
-at every step as we move to the exit. Uses lots of CPU :)
+at every step as we move to the exit.
