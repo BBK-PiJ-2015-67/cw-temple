@@ -46,6 +46,7 @@ public class SimpleExplorer implements CavernExplorer {
             lifeline.push(current);
 
             // get the node nearest to orb that hasn't been visited
+            // or backtrack if none are available
             Node nextNode = getNextNearest(true);
             next = nextNode != null ? nextNode.getId() : retraceStep();
 
