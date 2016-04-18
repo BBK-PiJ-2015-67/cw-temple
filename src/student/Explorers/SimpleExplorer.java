@@ -9,11 +9,13 @@ import java.util.Stack;
 
 /**
  * Algorithm is a Depth-first search implementation with some prioritisation applied.
+ * 
+ * Store each step in a Stack so we can backtrack if necessary.<br>
  * Try to visit the neighbour of current state that is nearest the orb and that hasn't
- * been visited yet.
- * Since more than one neighbour may be at the same distance, chooses one at random.
- * If no neighbours are unvisited, store each step in a Stack so we can backtrack if
- * necessary.
+ * been visited yet.<br>
+ * Since more than one neighbour may be at the same distance, chooses one at random.<br>
+ * If no neighbours are unvisited, backtracks if possible or if not, visits a previously
+ * visited neighbour.
  *
  * @see CavernExplorer
  *
