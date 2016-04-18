@@ -1,4 +1,4 @@
-package Escapology;
+package student.Escapology;
 
 import game.Tile;
 

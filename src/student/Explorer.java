@@ -1,8 +1,8 @@
 package student;
 
-import Escapology.Escaper;
-import Explorers.CavernExplorer;
-import Explorers.SimpleExplorer;
+import student.Escapology.Escaper;
+import student.Explorers.CavernExplorer;
+import student.Explorers.SimpleExplorer;
 import game.EscapeState;
 import game.ExplorationState;
 

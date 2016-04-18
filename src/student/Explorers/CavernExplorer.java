@@ -1,4 +1,4 @@
-package Explorers;
+package student.Explorers;
 
 import game.NodeStatus;
 
