@@ -42,15 +42,6 @@ import java.util.stream.Collectors;
     }
 
     /**
-     * Retrieve the total amount of gold available on this route
-     *
-     * @return The amount of gold on the route
-     */
-    /* package */ int getValue() {
-        return route.parallelStream().map(GreedyNode::getGold).reduce(Integer::sum).orElse(0);
-    }
-
-    /**
      * Combines two sequential routes and returns them as one
      * @param a The first route
      * @param b The route to add to the first
