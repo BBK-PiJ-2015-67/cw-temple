@@ -50,23 +50,6 @@ public class Escaper {
     }
 
     /**
-     * Get a route to the exit, possibly via a tile with a lot of gold if there is one
-     *
-     * @param routeFinder the RouteFinder to use
-     * @param state the game's state
-     * @param seen a set containing previously analysed "rich" nodes
-     * @return the route to follow to the exit
-     */
-    private static Route getRouteToFollow(RouteFinder routeFinder, EscapeState state, Set<Long> seen) {
-        Node richestNode = getRichestNode(state.getVertices(), seen);
-        if (richestNode != null) {
-            return routeFinder.findRouteVia(state.getCurrentNode(), richestNode, state.getExit(), state.getVertices());
-        } else {
-            return routeFinder.findRoute(state.getCurrentNode(), state.getExit(), state.getVertices());
-        }
-    }
-
-    /**
      * Follow a given route
      *
      * @param route The Route to follow
@@ -88,6 +71,23 @@ public class Escaper {
     private void moveAndPickUpGold(EscapeState state, Node destination) {
         if (state.getCurrentNode().getTile().getGold() > 0) state.pickUpGold();
         state.moveTo(destination);
+    }
+
+    /**
+     * Get a route to the exit, possibly via a tile with a lot of gold if there is one
+     *
+     * @param routeFinder the RouteFinder to use
+     * @param state the game's state
+     * @param seen a set containing previously analysed "rich" nodes
+     * @return the route to follow to the exit
+     */
+    private static Route getRouteToFollow(RouteFinder routeFinder, EscapeState state, Set<Long> seen) {
+        Node richestNode = getRichestNode(state.getVertices(), seen);
+        if (richestNode != null) {
+            return routeFinder.findRouteVia(state.getCurrentNode(), richestNode, state.getExit(), state.getVertices());
+        } else {
+            return routeFinder.findRoute(state.getCurrentNode(), state.getExit(), state.getVertices());
+        }
     }
 
     /**
